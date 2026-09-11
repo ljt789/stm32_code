@@ -52,5 +52,7 @@ else{
 void Write_byte_at24c02(uint8_t addr,uint8_t data){
 	 HAL_I2C_Mem_Write(&hi2c1, AT24C02_ADDR_WRITE, (uint16_t)addr, sizeof(addr),&data, sizeof(data), 10);
 }
-void Read_byte_at24c02(){
+uint8_t Read_byte_at24c02(){
+	return 0;
+	
 }

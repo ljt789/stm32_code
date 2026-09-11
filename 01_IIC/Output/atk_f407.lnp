@@ -1,4 +1,4 @@
---cpu=Cortex-M4.fp.sp
+--cpu Cortex-M4.fp
 "..\..\output\startup_stm32f407xx.o"
 "..\..\output\main.o"
 "..\..\output\stm32f4xx_it.o"
@@ -21,6 +21,6 @@
 "..\..\output\led.o"
 "..\..\output\at24c02.o"
 --library_type=microlib --strict --scatter "..\..\Output\atk_f407.sct"
---summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "..\..\Output\atk_f407.map" -o ..\..\Output\atk_f407.axf
