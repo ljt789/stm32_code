@@ -3,7 +3,7 @@
 #include "stm32f4xx_hal.h"
 I2C_HandleTypeDef hi2c1;
 /**
-@bridef  AT24C02对应的IIC驱动
+@bridef  AT24C02对应的IIC驱动 硬件IIC
 **/
 void AT24C02_BSP_INIT(){
 
