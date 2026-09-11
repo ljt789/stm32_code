@@ -1,6 +1,6 @@
 Dependencies for Project 'atk_f407', Target 'LED': (DO NOT MODIFY !)
 F (..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f407xx.s)(0x6AA3E6A9)(--cpu Cortex-M4.fp -g --apcs=interwork --pd "__MICROLIB SETA 1"-I D:\Code\stm32_code\01_IIC\Projects\MDK-ARM\RTE-I "D:\Program Files (x86)\ARM\CMSIS\Include"-I "D:\Program Files (x86)\ARM\PACK\Keil\STM32F4xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include"--pd "__UVISION_VERSION SETA 514" --pd "STM32F407xx SETA 1"--list ..\..\output\startup_stm32f407xx.lst --xref -o ..\..\output\startup_stm32f407xx.o --depend ..\..\output\startup_stm32f407xx.d)
-F (..\..\User\main.c)(0x6AA3E6A9)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\..\User -I..\..\Drivers -I..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I..\..\Drivers\CMSIS\Include -I..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I..\..\Middlewares -I..\..\Drivers\BSP\AT24C02-I D:\Code\stm32_code\01_IIC\Projects\MDK-ARM\RTE-I "D:\Program Files (x86)\ARM\CMSIS\Include"-I "D:\Program Files (x86)\ARM\PACK\Keil\STM32F4xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="514" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\main.o --omf_browse ..\..\output\main.crf --depend ..\..\output\main.d)
+F (..\..\User\main.c)(0x6AA3FFF2)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\..\User -I..\..\Drivers -I..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I..\..\Drivers\CMSIS\Include -I..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I..\..\Middlewares -I..\..\Drivers\BSP\AT24C02-I D:\Code\stm32_code\01_IIC\Projects\MDK-ARM\RTE-I "D:\Program Files (x86)\ARM\CMSIS\Include"-I "D:\Program Files (x86)\ARM\PACK\Keil\STM32F4xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="514" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\main.o --omf_browse ..\..\output\main.crf --depend ..\..\output\main.d)
 I (..\..\Drivers\./SYSTEM/sys/sys.h)(0x6AA3E6A9)
 I (..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h)(0x6AA3E6A9)
 I (..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h)(0x6AA3E6A9)
@@ -71,7 +71,7 @@ I (..\..\Drivers\./SYSTEM/usart/usart.h)(0x6AA3E6A9)
 I (D:\Program Files (x86)\ARM\ARMCC\include\stdio.h)(0x5475F300)
 I (..\..\Drivers\./SYSTEM/delay/delay.h)(0x6AA3E6A9)
 I (..\..\Drivers\./BSP/LED/led.h)(0x6AA3E6A9)
-I (..\..\Drivers\BSP\AT24C02\at24c02.h)(0x6AA3E6A9)
+I (..\..\Drivers\BSP\AT24C02\at24c02.h)(0x6AA3FCFB)
 F (..\..\User\stm32f4xx_it.c)(0x6AA3E6A9)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\..\User -I..\..\Drivers -I..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I..\..\Drivers\CMSIS\Include -I..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I..\..\Middlewares -I..\..\Drivers\BSP\AT24C02-I D:\Code\stm32_code\01_IIC\Projects\MDK-ARM\RTE-I "D:\Program Files (x86)\ARM\CMSIS\Include"-I "D:\Program Files (x86)\ARM\PACK\Keil\STM32F4xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="514" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\stm32f4xx_it.o --omf_browse ..\..\output\stm32f4xx_it.crf --depend ..\..\output\stm32f4xx_it.d)
 I (..\..\User\stm32f4xx_it.h)(0x6AA3E6A9)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x6AA3E6A9)
@@ -1269,8 +1269,8 @@ I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x6AA3E6A9)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x6AA3E6A9)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x6AA3E6A9)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h)(0x6AA3E6A9)
-F (..\..\Drivers\BSP\AT24C02\at24c02.c)(0x6AA3E6A9)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\..\User -I..\..\Drivers -I..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I..\..\Drivers\CMSIS\Include -I..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I..\..\Middlewares -I..\..\Drivers\BSP\AT24C02-I D:\Code\stm32_code\01_IIC\Projects\MDK-ARM\RTE-I "D:\Program Files (x86)\ARM\CMSIS\Include"-I "D:\Program Files (x86)\ARM\PACK\Keil\STM32F4xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="514" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\at24c02.o --omf_browse ..\..\output\at24c02.crf --depend ..\..\output\at24c02.d)
-I (..\..\Drivers\BSP\AT24C02\at24c02.h)(0x6AA3E6A9)
+F (..\..\Drivers\BSP\AT24C02\at24c02.c)(0x6AA3FFF2)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\..\User -I..\..\Drivers -I..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include -I..\..\Drivers\CMSIS\Include -I..\..\Drivers\STM32F4xx_HAL_Driver\Inc -I..\..\Middlewares -I..\..\Drivers\BSP\AT24C02-I D:\Code\stm32_code\01_IIC\Projects\MDK-ARM\RTE-I "D:\Program Files (x86)\ARM\CMSIS\Include"-I "D:\Program Files (x86)\ARM\PACK\Keil\STM32F4xx_DFP\3.1.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="514" -DSTM32F407xx -DUSE_HAL_DRIVER -DSTM32F407xx-o ..\..\output\at24c02.o --omf_browse ..\..\output\at24c02.crf --depend ..\..\output\at24c02.d)
+I (..\..\Drivers\BSP\AT24C02\at24c02.h)(0x6AA3FCFB)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x6AA3E6A9)
 I (..\..\User\stm32f4xx_hal_conf.h)(0x6AA3E6A9)
 I (..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h)(0x6AA3E6A9)

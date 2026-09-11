@@ -49,10 +49,15 @@ else{
 }
 }
 //AT24C02总共256字节 共32页，每页8字节
-void Write_byte_at24c02(uint8_t addr,uint8_t data){
-	 HAL_I2C_Mem_Write(&hi2c1, AT24C02_ADDR_WRITE, (uint16_t)addr, sizeof(addr),&data, sizeof(data), 10);
+uint8_t Write_byte_at24c02(uint8_t addr,uint8_t data){
+	uint8_t ret=HAL_I2C_Mem_Write(&hi2c1, AT24C02_ADDR_WRITE, (uint16_t)addr, I2C_MEMADD_SIZE_8BIT,&data, sizeof(data), 10);
+	HAL_Delay(2);
+	return ret;
 }
-uint8_t Read_byte_at24c02(){
-	return 0;
+
+uint8_t Read_byte_at24c02(uint8_t addr){
+  uint8_t data;
+	if(HAL_I2C_Mem_Read(&hi2c1,AT24C02_ADDR_READ, (uint16_t) addr, I2C_MEMADD_SIZE_8BIT, &data, sizeof(data), 10));
+	return data;
 	
 }

@@ -7,4 +7,7 @@
 
 void AT24C02_BSP_INIT(void);
 void Ping_AT24C02(void);
+uint8_t Write_byte_at24c02(uint8_t addr,uint8_t data);
+
+uint8_t Read_byte_at24c02(uint8_t addr);
 #endif

@@ -35,6 +35,16 @@ int main(void)
     AT24C02_BSP_INIT();
     HAL_Delay(100);
 	  Ping_AT24C02();
+	  for(int i=0;i<256;i++){
+		Write_byte_at24c02(i,i);
+		}
+		for(int i=0;i<256;i++){
+	  uint8_t data=Read_byte_at24c02(i);
+			printf("addr:%x data:%x",i,data);
+		}
+	  
+	
+
     while(1)
     {
         LED0(0);                                /* LED0 �� */
