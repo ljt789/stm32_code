@@ -1,0 +1,32 @@
+# Keil 用户界面配置
+*.uvguix.*
+*.uvoptx
+
+# Keil 编译产物
+*.bak
+*.dep
+*.crf
+*.o
+*.d
+*.hex
+*.bin
+*.map
+*.lst
+*.axf
+*.htm
+*.lnp
+*.iex
+*.sct
+Objects/
+Listings/
+DebugConfig/
+RTE/
+
+# STM32CubeIDE
+.settings/
+.metadata/
+*.launch
+
+# 系统
+.DS_Store
+Thumbs.db
