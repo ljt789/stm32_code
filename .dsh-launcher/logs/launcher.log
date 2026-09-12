@@ -1,0 +1,13 @@
+[2026-09-12 09:43:54] launcher installed and verified (fresh start + reuse); test log cleared
+[2026-09-12 09:45:00] --- launcher invoked (workspace=E:\MCU_TEST_CODE, port=3080)
+[2026-09-12 09:45:00] starting: D:\Program Files\nodejs\node.exe C:\Users\Administrator\AppData\Local\npm-cache\_npx\1e7f6d9597241db0\node_modules\@deepseek-ai\dsh\lib\bin.js web --host 127.0.0.1 --port 3080
+[2026-09-12 09:45:00] service pid 24852
+[2026-09-12 09:45:25] --- launcher invoked (workspace=E:\MCU_TEST_CODE, port=3080)
+[2026-09-12 09:45:26] port probe could not reach it, but pid 24852 is the service; reusing http://127.0.0.1:3080
+[2026-09-12 09:45:26] service already up; reusing it: http://127.0.0.1:3080
+[2026-09-12 09:45:26] opening browser: http://127.0.0.1:3080
+[2026-09-12 09:45:28] launcher exiting (existing service left running)
+[2026-09-12 09:46:01] port 3080 is already owned by another process; this start cannot succeed
+[2026-09-12 09:46:01] reusing the service that already owns the port: http://127.0.0.1:3080
+[2026-09-12 09:46:01] opening browser: http://127.0.0.1:3080
+[2026-09-12 09:46:03] launcher exiting (existing service left running)
