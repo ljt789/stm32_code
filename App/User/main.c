@@ -34,7 +34,7 @@ int main(void)
 		usart_init(115200);
     AT24C02_BSP_INIT();
     HAL_Delay(100);
-	  Ping_AT24C02();
+	  printf("jump end");
 	  // for(int i=0;i<256;i++){
 		// Write_byte_at24c02(i,i);
 		// }

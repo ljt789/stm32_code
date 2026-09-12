@@ -24,6 +24,7 @@
 #include "./BSP/LED/led.h"
 #include <at24c02.h>
 #include <stmflash.h>
+#include <bootloader.h>
 int main(void)
 {
 	  uint8_t buf[20];
@@ -35,41 +36,12 @@ int main(void)
     AT24C02_BSP_INIT();
     HAL_Delay(100);
 	  Ping_AT24C02();
-	  // for(int i=0;i<256;i++){
-		// Write_byte_at24c02(i,i);
-		// }
-		// for(int i=0;i<256;i++){
-	  // uint8_t data=Read_byte_at24c02(i);
-		// 	printf("addr:%x data:%x",i,data);
-		// }
-	  
-		// if (stmflash_read(0x08008888, buf,4)==flash_read_success){
-    //   for(int i=0;i<4;i++){
-    //     printf("%x\r\n",buf[i]);
-    //   }
-    // }
-    uint8_t wbuf[4] = {0x11, 0x22, 0x33, 0x44};
-    uint8_t rbuf[4] = {0};
-
-    if (stmflash_write(0x080E0000, wbuf, 4) == flash_write_success)
-    {
-        stmflash_read(0x080E0000, rbuf, 4);
-        printf("read: %02X %02X %02X %02X\r\n", rbuf[0], rbuf[1], rbuf[2], rbuf[3]);
-    }
-    else
-    {
-        printf("write fail\r\n");
-    }
+    printf("jump ing");
+    jump_app(0x8020000);
 	
-    
     while(1)
     {
-        LED0(0);                                /* LED0 �� */
-        LED1(1);                                /* LED1 �� */
-        delay_ms(500);
-        LED0(1);                                /* LED0 �� */
-        LED1(0);                                /* LED1 �� */
-        delay_ms(500);
+
     }
 }
 
