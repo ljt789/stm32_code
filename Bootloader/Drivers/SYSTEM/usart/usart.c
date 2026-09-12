@@ -122,7 +122,7 @@ void usart_init(uint32_t baudrate)
     HAL_UART_Init(&g_uart1_handle);                             /* HAL_UART_Init()会使能UART1 */
     
     /* 该函数会开启接收中断：标志位UART_IT_RXNE，并且设置接收缓冲以及接收缓冲接收最大数据量 */
-    HAL_UART_Receive_IT(&g_uart1_handle, (uint8_t *)g_rx_buffer, RXBUFFERSIZE);
+    //HAL_UART_Receive_IT(&g_uart1_handle, (uint8_t *)g_rx_buffer, RXBUFFERSIZE);
 }
 
 /**
@@ -164,44 +164,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
  * @param       huart: UART句柄类型指针
  * @retval      无
  */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if(huart->Instance == USART_UX)             /* 如果是串口1 */
-    {
-        if((g_usart_rx_sta & 0x8000) == 0)      /* 接收未完成 */
-        {
-            if(g_usart_rx_sta & 0x4000)         /* 接收到了0x0d */
-            {
-                if(g_rx_buffer[0] != 0x0a) 
-                {
-                    g_usart_rx_sta = 0;         /* 接收错误,重新开始 */
-                }
-                else 
-                {
-                    g_usart_rx_sta |= 0x8000;   /* 接收完成了 */
-                }
-            }
-            else                                /* 还没收到0X0D */
-            {
-                if(g_rx_buffer[0] == 0x0d)
-                {
-                    g_usart_rx_sta |= 0x4000;
-                }
-                else
-                {
-                    g_usart_rx_buf[g_usart_rx_sta & 0X3FFF] = g_rx_buffer[0] ;
-                    g_usart_rx_sta++;
-                    if(g_usart_rx_sta > (USART_REC_LEN - 1))
-                    {
-                        g_usart_rx_sta = 0;     /* 接收数据错误,重新开始接收 */
-                    }
-                }
-            }
-        }
-        
-        HAL_UART_Receive_IT(&g_uart1_handle, (uint8_t *)g_rx_buffer, RXBUFFERSIZE);
-    }
-}
+
+
 
 /**
  * @brief       串口1中断服务函数

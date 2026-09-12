@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\User;..\..\Drivers;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Drivers\CMSIS\Include;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Middlewares;..\..\Drivers\BSP\AT24C02;..\..\Drivers\BSP\FLASH</IncludePath>
+              <IncludePath>..\..\User;..\..\Drivers;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Drivers\CMSIS\Include;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Middlewares;..\..\Drivers\BSP\AT24C02;..\..\Drivers\BSP\FLASH;..\..\Drivers\BSP\BOOTLOADER</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -522,6 +522,11 @@
               <FileName>stmflash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Drivers\BSP\FLASH\stmflash.c</FilePath>
+            </File>
+            <File>
+              <FileName>bootloader.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Drivers\BSP\BOOTLOADER\bootloader.c</FilePath>
             </File>
           </Files>
         </Group>
