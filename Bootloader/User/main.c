@@ -25,6 +25,8 @@
 #include <at24c02.h>
 #include <stmflash.h>
 #include <bootloader.h>
+#include <ota.h>
+ota_flag_t ota_flag;                     //OTA升级相关的标志位
 int main(void)
 {
 	  uint8_t buf[20];
@@ -35,9 +37,17 @@ int main(void)
 		usart_init(115200);
     AT24C02_BSP_INIT();
     HAL_Delay(100);
-	  Ping_AT24C02();
-    printf("jump ing");
-    jump_app(0x8020000);
+
+    printf("[OTA] Checking upgrade request...\r\n");
+    ota_flag.state=Read_byte_at24c02(0x01);
+    if(ota_flag.state==1){                      /*升级标志位*/
+      printf("upgradeing.......\r\n");
+    }
+    else if(ota_flag.state==0){                 /*跳转标志位*/
+      printf("jump app\r\n");
+      jump_app(0x8020000);
+    }
+    
 	
     while(1)
     {

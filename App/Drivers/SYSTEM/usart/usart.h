@@ -28,6 +28,7 @@
 
 #include "stdio.h"
 #include "./SYSTEM/sys/sys.h"
+#include <ring_buffer.h>
 
 
 /*******************************************************************************************************/
@@ -62,6 +63,7 @@ extern UART_HandleTypeDef g_uart1_handle;       /* UART句柄 */
 extern uint8_t  g_usart_rx_buf[USART_REC_LEN];  /* 接收缓冲,最大USART_REC_LEN个字节.末字节为换行符 */
 extern uint16_t g_usart_rx_sta;                 /* 接收状态标记 */
 extern uint8_t g_rx_buffer[RXBUFFERSIZE];       /* HAL库USART接收Buffer */
+extern ring_buffer_t g_ota_cmd_rb;              /* OTA升级请求环形缓冲(定义在main.c) */
 
 
 void usart_init(uint32_t baudrate);             /* 串口初始化函数 */

@@ -1,0 +1,11 @@
+{
+    // C 源文件统一按 GB18030 读写, 与 Keil(ANSI/GBK) 保持一致
+    "[c]": {
+        "files.encoding": "gb18030"
+    },
+    "[cpp]": {
+        "files.encoding": "gb18030"
+    },
+    // 其他文件(比如 GBK 的 readme.txt)让 VSCode 自己判断
+    "files.autoGuessEncoding": true
+}
