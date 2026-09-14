@@ -53,10 +53,11 @@ int main(void)
     ota_flag.state=0;
 	  Write_byte_at24c02(0x01,0);
 	  HAL_Delay(100);
+	  printf("success jump app\r\n");
     while(1)
     {
         if(rb_get(&g_ota_cmd_rb, &g_ota_cmd_data)!=0){
-
+       
           if(g_ota_cmd_data==OTA_CMD_TAB[0]){
               g_ota_cmd[g_ota_cmd_idx]=g_ota_cmd_data;
               g_ota_cmd_idx  = 1;
@@ -65,23 +66,24 @@ int main(void)
           if (g_ota_cmd_idx > 0 && g_ota_cmd_data == OTA_CMD_TAB[g_ota_cmd_idx]){
               g_ota_cmd[g_ota_cmd_idx]=g_ota_cmd_data;
               g_ota_cmd_idx++;
-            if (g_ota_cmd_idx >= 6)   /* 收满立刻判完成, 不等下一个字节 */
-        {
-					  printf("jie shou wan cheng\r\n");
-            g_ota_cmd_idx = 0;
-            ota_flag.state=OTA_REQUEST;
-            printf("at24c02:%x\r\n",Read_byte_at24c02(0x01));
-            Write_byte_at24c02(0x01,ota_flag.state);
-            printf("at24c02:%x\r\n",Read_byte_at24c02(0x01));
-            NVIC_SystemReset();             /* 软复位，不返回 */
-          }
-          
-		 }
-				
-				}
-        LED0(0);                                /* LED0*/
-        HAL_Delay(100);
-   
+              if (g_ota_cmd_idx >= 6)   /* 收满立刻判完成, 不等下一个字节 */
+									{
+										printf("jie shou wan cheng\r\n");
+										g_ota_cmd_idx = 0;
+										ota_flag.state=OTA_REQUEST;
+										printf("at24c02:%x\r\n",Read_byte_at24c02(0x01));
+										Write_byte_at24c02(0x01,ota_flag.state);
+										printf("at24c02:%x\r\n",Read_byte_at24c02(0x01));
+										NVIC_SystemReset();             /* 软复位，不返回 */
+                  }
+				   
+		        }
+				   printf("%x  %d\r\n",g_ota_cmd_data,g_ota_cmd_idx);
+				 }
+         LED0(0);                                /* LED0*/
+         HAL_Delay(100);
+         LED0(1);   
+				   HAL_Delay(100);
 }
 		}
 

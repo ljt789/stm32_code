@@ -63,7 +63,8 @@ extern uint8_t  g_usart_rx_buf[USART_REC_LEN];  /* ½ÓÊÕ»º³å,×î´óUSART_REC_LEN¸ö×
 extern uint16_t g_usart_rx_sta;                 /* ½ÓÊÕ×´Ì¬±ê¼Ç */
 extern uint8_t g_rx_buffer[RXBUFFERSIZE];       /* HAL¿âUSART½ÓÊÕBuffer */
 
-
+#define OTA_RX_BUF_SIZE   2048
+extern uint8_t g_ota_rx_buf[OTA_RX_BUF_SIZE];
 void usart_init(uint32_t baudrate);             /* ´®¿Ú³õÊ¼»¯º¯Êı */
 
 #endif

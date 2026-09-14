@@ -9,6 +9,8 @@
 #define stm32_rom_baseaddr 0x20000000       /*stm32内部RAM起始地址*/
 #define stm32_rom_size     0x20000          /*stm32内部RAM大小 */
 
+#define stm32_app_baseaddr 0x8020000        /*app区的起始地址 */
+
 #define bootloader_failed  -1 
 #define bootloader_success 1
 

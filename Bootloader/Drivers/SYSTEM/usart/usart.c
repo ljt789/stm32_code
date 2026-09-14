@@ -25,8 +25,9 @@
 
 #include "./SYSTEM/sys/sys.h"
 #include "./SYSTEM/usart/usart.h"
-
-
+#include "stmflash.h"
+#include "bootloader.h"
+#include "ota.h"
 /* 如果使用os,则包括下面的头文件即可 */
 #if SYS_SUPPORT_OS
 #include "os.h"                               /* os 使用 */
@@ -100,8 +101,11 @@ uint16_t g_usart_rx_sta = 0;
 
 uint8_t g_rx_buffer[RXBUFFERSIZE];                  /* HAL库使用的串口接收缓冲 */
 
-UART_HandleTypeDef g_uart1_handle;                  /* UART句柄 */
+UART_HandleTypeDef g_uart1_handle;                  /* UART1句柄 */
 
+
+
+uint8_t g_ota_rx_buf[OTA_RX_BUF_SIZE];
 
 /**
  * @brief       串口X初始化函数
@@ -123,6 +127,10 @@ void usart_init(uint32_t baudrate)
     
     /* 该函数会开启接收中断：标志位UART_IT_RXNE，并且设置接收缓冲以及接收缓冲接收最大数据量 */
     //HAL_UART_Receive_IT(&g_uart1_handle, (uint8_t *)g_rx_buffer, RXBUFFERSIZE);
+
+
+    HAL_UARTEx_ReceiveToIdle_DMA(&g_uart1_handle, g_ota_rx_buf,OTA_RX_BUF_SIZE);
+   
 }
 
 /**
@@ -160,11 +168,28 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 }
 
 /**
- * @brief       Rx传输回调函数
+ * @brief       Rx事件回调函数
  * @param       huart: UART句柄类型指针
  * @retval      无
  */
 
+static uint32_t g_ota_weitten=0;
+extern ota_flag_t ota_flag;                     //OTA????????
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
+
+  
+    if(stmflash_write(stm32_app_baseaddr + g_ota_weitten, g_ota_rx_buf, Size)==flash_write_success)
+    {
+        g_ota_weitten+=Size;
+    }
+    
+    if(Size!=1024){
+        ota_flag.state=OTA_PENDING;
+
+    }
+
+    HAL_UARTEx_ReceiveToIdle_DMA(&g_uart1_handle, g_ota_rx_buf,OTA_RX_BUF_SIZE);
+}
 
 
 /**

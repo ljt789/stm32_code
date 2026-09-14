@@ -31,10 +31,10 @@ void AT24C02_BSP_INIT(){
 	hi2c1.Init.OwnAddress2=0;
 	
 if(HAL_I2C_Init(&hi2c1)!=HAL_OK){
-	printf("I2C_INIT ERROR\r\n");
+//	printf("I2C_INIT ERROR\r\n");
 }
 else{
-	printf("I2C_INIT SUCCESS\r\n");
+	//printf("I2C_INIT SUCCESS\r\n");
 }
 }
 //PING AT24C02

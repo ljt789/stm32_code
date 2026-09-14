@@ -170,7 +170,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if(huart->Instance == USART_UX)             /*  */
     {
-        
+        //printf("reCV\r\n");
         rb_put(&g_ota_cmd_rb, g_rx_buffer[0]);
         HAL_UART_Receive_IT(&g_uart1_handle, (uint8_t *)g_rx_buffer, RXBUFFERSIZE);
     }

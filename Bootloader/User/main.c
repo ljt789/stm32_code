@@ -26,6 +26,7 @@
 #include <stmflash.h>
 #include <bootloader.h>
 #include <ota.h>
+#include <dma.h>
 ota_flag_t ota_flag;                     //OTA升级相关的标志位
 int main(void)
 {
@@ -34,24 +35,45 @@ int main(void)
     sys_stm32_clock_init(336, 8, 2, 7);         /* ����ʱ��,168Mhz */
     delay_init(168);                            /* ��ʱ��ʼ�� */
     led_init();                                 /* ��ʼ��LED */
-		usart_init(115200);
+    
     AT24C02_BSP_INIT();
     HAL_Delay(100);
 
-    printf("[OTA] Checking upgrade request...\r\n");
+
     ota_flag.state=Read_byte_at24c02(0x01);
     if(ota_flag.state==1){                      /*升级标志位*/
+
+      ota_dma_init();
+		  usart_init(115200);
+
+
       printf("upgradeing.......\r\n");
+      printf("earseing.........\r\n");
+      flash_erase_sector(5);                      //擦除app区域
+      printf("earse finish.........\r\n");
     }
     else if(ota_flag.state==0){                 /*跳转标志位*/
-      printf("jump app\r\n");
-      jump_app(0x8020000);
+
+      jump_app(stm32_app_baseaddr);
     }
     
 	
     while(1)
     {
 
+
+ if(ota_flag.state==OTA_PENDING)
+ {
+          Write_byte_at24c02(0x01,0);
+          NVIC_SystemReset(); 
+ }
+        
+        LED0(0); 
+        LED1(1);  			/* LED0*/
+        HAL_Delay(100);
+			  LED0(1); 
+        LED1(0);  			/* LED0*/
+        HAL_Delay(100);
     }
 }
 

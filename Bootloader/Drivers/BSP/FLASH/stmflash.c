@@ -54,16 +54,16 @@ if(addr<STM32_FLASH_BASE) return flash_write_error;
 //2.判断地址加长度是否大于终止地址
 if(addr+len>STM32_FLASH_BASE+STM32_FLASH_SIZE) return flash_write_error;
 
-//2.获取扇区地址
-sector_begin_num=flash_find_sector(addr);
-sector_end_num=flash_find_sector(addr+len-1);
+// //2.获取扇区地址
+// sector_begin_num=flash_find_sector(addr);
+// sector_end_num=flash_find_sector(addr+len-1);
 
-//3.擦除扇区
-for(uint8_t i=sector_begin_num;i<=sector_end_num;i++){
-    status=flash_erase_sector(i);
-    if(status!=HAL_OK) 
-        return flash_write_error;
-    }
+// //3.擦除扇区
+// for(uint8_t i=sector_begin_num;i<=sector_end_num;i++){
+//     status=flash_erase_sector(i);
+//     if(status!=HAL_OK) 
+//         return flash_write_error;
+//     }
 
 //4.解锁
 HAL_FLASH_Unlock();
