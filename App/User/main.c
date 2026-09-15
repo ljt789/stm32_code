@@ -68,7 +68,7 @@ int main(void)
               g_ota_cmd_idx++;
               if (g_ota_cmd_idx >= 6)   /* 收满立刻判完成, 不等下一个字节 */
 									{
-										printf("jie shou wan cheng\r\n");
+										printf("正在启动\r\n");
 										g_ota_cmd_idx = 0;
 										ota_flag.state=OTA_REQUEST;
 										printf("at24c02:%x\r\n",Read_byte_at24c02(0x01));
