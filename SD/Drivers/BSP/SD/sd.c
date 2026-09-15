@@ -40,9 +40,74 @@ gpio_init_struct.Pin=SDI0_CMD_PIN;
 HAL_GPIO_Init(SDIO_CMD_PORT,&gpio_init_struct);
 }
 
-uint8_t sd_init(){
+
+/**
+ * @brief sd初始化
+ * 
+ */
 SD_HandleTypeDef hsd;
-hsd.Instance=;
+uint8_t sd_init(){
+
+hsd.Instance=SDIO;            //sd基地址
+hsd.Init.BusWide=SDIO_BUS_WIDE_1B;            //总线位宽
+hsd.Init.ClockBypass=SDIO_CLOCK_BYPASS_DISABLE;        //分频旁路
+hsd.Init.ClockDiv=SDIO_TRANSFER_CLK_DIV;           //时钟分频
+hsd.Init.ClockEdge=SDIO_CLOCK_EDGE_RISING;          //采样边沿
+hsd.Init.ClockPowerSave=SDIO_CLOCK_POWER_SAVE_DISABLE;     //空闲时关闭时钟
+hsd.Init.HardwareFlowControl=SDIO_HARDWARE_FLOW_CONTROL_DISABLE;	
 	
-HAL_SD_Init(&hsd);
+if(HAL_SD_Init(&hsd)!=HAL_OK){
+    return 1;
 }
+if(HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B)!=HAL_OK)//切换4bit
+{
+    return 2;
+}
+return 0;
+}
+
+uint8_t sd_write_disk(uint8_t *Data,uint32_t Block_begin,uint32_t block_num)
+{
+	uint32_t t0;
+	//写
+if (HAL_SD_WriteBlocks(&hsd,(uint8_t*)Data ,Block_begin, block_num, 5000)!=HAL_OK){
+	return -1;
+
+}
+//等待
+    t0 = HAL_GetTick();
+    while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER)   /* CMD13 查询，期望回到 4 */
+    {
+        if (HAL_GetTick() - t0 > 2000U)        return 2;   /* 卡编程超时（坏块重试/掉速） */
+        if (hsd.ErrorCode != HAL_SD_ERROR_NONE) return 3;   /* CMD13 本身失败 */
+    }
+
+return HAL_OK;
+}
+
+/**
+ * @brief 写函数
+ * @note  写的最小单位是块sector，1个块等于512字节
+ */
+// void sd_write_disk(){
+//     HAL_StatusTypeDef HAL_SD_WriteBlocks(&hsd, uint8_t *pData, uint32_t BlockAdd, uint32_t NumberOfBlocks, uint32_t Timeout);
+// }
+
+// void sd_earse_disk(){
+// 	HAL_StatusTypeDef HAL_SD_Erase(&hsd, uint32_t BlockStartAdd, uint32_t BlockEndAdd);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
