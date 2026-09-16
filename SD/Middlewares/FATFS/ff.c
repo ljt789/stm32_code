@@ -461,7 +461,7 @@ typedef struct {	/* Open object identifier with status */
 #if FF_VOLUMES < 1 || FF_VOLUMES > 10
 #error Wrong FF_VOLUMES setting
 #endif
-static FATFS *FatFs[FF_VOLUMES];	/* Pointer to the filesystem objects (logical drives) */
+static FATFS *FatFs[FF_VOLUMES];	/* 定义指针数组，存放fafts的工作区对象指针Pointer to the filesystem objects (logical drives) */
 static WORD Fsid;					/* Filesystem mount ID */
 
 #if FF_FS_RPATH
@@ -3216,7 +3216,9 @@ static FRESULT follow_path (	/* FR_OK(0): successful, !=0: error code */
 /*-----------------------------------------------------------------------*/
 /* Get logical drive number from path name                               */
 /*-----------------------------------------------------------------------*/
-
+/**
+ * @param  const TCHAR** path	:逻辑地址
+ */
 static int get_ldnumber (	/* Returns logical drive number (-1:invalid drive number or null pointer) */
 	const TCHAR** path		/* Pointer to pointer to the path name */
 )
@@ -3457,15 +3459,20 @@ static UINT find_volume (	/* Returns BS status found in the hosting drive */
 /*-----------------------------------------------------------------------*/
 /* Determine logical drive number and mount the volume if needed         */
 /*-----------------------------------------------------------------------*/
-
+/**
+ * @brief :真正的挂载函数
+ * @param const TCHAR** path：磁盘地址(字符串":0") 第一个从数字0开始
+ * @param FATFS** rfs ：工作区对象
+ * @param BYTE mode  访问模式
+ */
 static FRESULT mount_volume (	/* FR_OK(0): successful, !=0: an error occurred */
 	const TCHAR** path,			/* Pointer to pointer to the path name (drive number) */
 	FATFS** rfs,				/* Pointer to pointer to the found filesystem object */
 	BYTE mode					/* Desiered access mode to check write protection */
 )
 {
-	int vol;
-	FATFS *fs;
+	int vol;                     //存放磁盘号
+	FATFS *fs;                   //工作区对象地址
 	DSTATUS stat;
 	LBA_t bsect;
 	UINT fmt;
@@ -3473,20 +3480,24 @@ static FRESULT mount_volume (	/* FR_OK(0): successful, !=0: an error occurred */
 
 	/* Get logical drive number */
 	*rfs = 0;
-	vol = get_ldnumber(path);
-	if (vol < 0) return FR_INVALID_DRIVE;
+	vol = get_ldnumber(path);               //读取磁盘号
+	if (vol < 0) return FR_INVALID_DRIVE;   //磁盘号不能为负数，否则无效
 
 	/* Check if the filesystem object is valid or not */
-	fs = FatFs[vol];					/* Get pointer to the filesystem object */
-	if (!fs) return FR_NOT_ENABLED;		/* Is the filesystem object available? */
+	fs = FatFs[vol];					/* 从指针数组中获取磁盘号对应的工作区数组指针*/
+	if (!fs) return FR_NOT_ENABLED;		/* 判断是否为空 */
 #if FF_FS_REENTRANT
 	if (!lock_volume(fs, 1)) return FR_TIMEOUT;	/* Lock the volume, and system if needed */
 #endif
 	*rfs = fs;							/* Return pointer to the filesystem object */
 
 	mode &= (BYTE)~FA_READ;				/* Desired access mode, write access or not */
-	if (fs->fs_type != 0) {				/* If the volume has been mounted */
-		stat = disk_status(fs->pdrv);
+	if (fs->fs_type != 0) {				/* fs_type == 0 = 从未挂载或已被注销。是 0 就整个跳过快速通道*/.
+		stat = disk_status(fs->pdrv);    //获取磁盘的状态| 位 | 值 | 含义 |
+			// | --- | --- | --- |
+			// | STA_NOINIT | 0x01 | 介质未初始化（卡拔过/掉电） |
+			// | STA_NODISK | 0x02 | 槽里没卡 |
+			// | STA_PROTECT | 0x04 | 写保护 |
 		if (!(stat & STA_NOINIT)) {		/* and the physical drive is kept initialized */
 			if (!FF_FS_READONLY && mode && (stat & STA_PROTECT)) {	/* Check write protection if needed */
 				return FR_WRITE_PROTECTED;
@@ -3736,25 +3747,32 @@ static FRESULT validate (	/* Returns FR_OK or FR_INVALID_OBJECT */
 /* API: Mount/Unmount a Logical Drive                                    */
 /*-----------------------------------------------------------------------*/
 
+/**
+ * @brief: 挂载函数
+ * @param:FATFS* fs:工作区对象
+ * @param:const TCHAR* path:逻辑盘号
+ * @param:BYTE opt:延迟挂载 还是立即挂载
+ * @note :FatFs 模块内部有一张指针表：FATFS* FatFs[FF_VOLUMES];（FF_VOLUMES 默认 1，在 ffconf.h 里配），f_mount 本质上就是往 FatFs[0] 里填你的指针
+ */
 FRESULT f_mount (
 	FATFS* fs,			/* Pointer to the filesystem object to be registered (NULL:unmount)*/
 	const TCHAR* path,	/* Logical drive number to be mounted/unmounted */
 	BYTE opt			/* Mount option: 0=Do not mount (delayed mount), 1=Mount immediately */
 )
 {
-	FATFS *cfs;
-	int vol;
-	FRESULT res;
-	const TCHAR *rp = path;
+	FATFS *cfs;             /*工作区对象指针*/
+	int vol;                /*逻辑盘号 */
+	FRESULT res;            /*挂载的返回结果*/
+	const TCHAR *rp = path; /*逻辑盘号*/
 
 
 	/* Get volume ID (logical drive number) */
-	vol = get_ldnumber(&rp);
-	if (vol < 0) return FR_INVALID_DRIVE;
+	vol = get_ldnumber(&rp);   /*从字符串获取具体的逻辑盘号，例如""0:"返回数字0*/
+	if (vol < 0) return FR_INVALID_DRIVE;/*判断此值合法性，必须非负*/
 
-	cfs = FatFs[vol];			/* Pointer to the filesystem object of the volume */
-	if (cfs) {					/* Unregister current filesystem object */
-		FatFs[vol] = 0;
+	cfs = FatFs[vol];			/*暂存：这个盘号当前登记的工作区指针（可能为 NULL） */*/
+	if (cfs) {					/*判断：之前是否挂载过 */Unregister current filesystem object */
+		FatFs[vol] = 0;         /*赋值空指针 */
 #if FF_FS_LOCK					/* Clear file lock semaphores correspond to this volume */
 		clear_share(cfs);
 #endif
@@ -3764,8 +3782,8 @@ FRESULT f_mount (
 		cfs->fs_type = 0;		/* Invalidate the filesystem object to be unregistered */
 	}
 
-	if (fs) {					/* Register new filesystem object */
-		fs->pdrv = LD2PD(vol);	/* Volume hosting physical drive */
+	if (fs) {					/* 判断当前对象指针是否非空 */
+		fs->pdrv = LD2PD(vol);	/* 盘号与物理地址绑定Volume hosting physical drive */
 #if FF_FS_REENTRANT				/* Create a volume mutex */
 		fs->ldrv = (BYTE)vol;	/* Owner volume ID */
 		if (!ff_mutex_create(vol)) return FR_INT_ERR;
@@ -3780,12 +3798,12 @@ FRESULT f_mount (
 #endif
 #endif
 		fs->fs_type = 0;		/* Invalidate the new filesystem object */
-		FatFs[vol] = fs;		/* Register it */
+		FatFs[vol] = fs;		/* 将当前对象指针放在 专门管理的指针数组中*/
 	}
 
-	if (opt == 0) return FR_OK;	/* Do not mount now, it will be mounted in subsequent file functions */
+	if (opt == 0) return FR_OK;	        /* 稍后挂载Do not mount now, it will be mounted in subsequent file functions */
 
-	res = mount_volume(&path, &fs, 0);	/* Force mounted the volume in this function */
+	res = mount_volume(&path, &fs, 0);	/*     /* 立即挂载：摸卡、读引导扇区、填字段 Force mounted the volume in this function */
 	LEAVE_FF(fs, res);
 }
 

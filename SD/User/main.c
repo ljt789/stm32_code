@@ -43,8 +43,7 @@ static void fatfs_test(void)
 
     /* ---------- 1. ╧рть ---------- */
 
-	
-fr = f_mount(&fs, "0:", 1);
+    fr = f_mount(&fs, "0:", 1);
     printf("f_mount -> %d\r\n", fr);
 
     if (fr == FR_NO_FILESYSTEM)

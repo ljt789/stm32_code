@@ -178,8 +178,8 @@
 / Drive/Volume Configurations
 /---------------------------------------------------------------------------*/
 
-#define FF_VOLUMES		1
-/* Number of volumes (logical drives) to be used. (1-10) */
+#define FF_VOLUMES		1  //磁盘卷的个数  个数是1 逻辑地址是0 个数是2 逻辑地址是0 1
+/* Number of volumes (logical drives) to be used. (1-10)   */
 
 
 #define FF_STR_VOLUME_ID	0
