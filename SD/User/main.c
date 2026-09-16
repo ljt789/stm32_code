@@ -20,56 +20,86 @@
 #include "./BSP/LCD/lcd.h"
 #include "./BSP/ADC/adc.h"
 #include <sd.h>
+#include <ff.h>
+#include "diskio.h"
+#include <string.h>
+
 extern SD_HandleTypeDef hsd;
 HAL_SD_CardStatusTypeDef pStatus;
 uint8_t data[512];
+uint8_t buffer[512];
+
+FATFS   fs;              /* 卷对象：f_mount 之后 FatFs 一直要用它，必须全局或 static */
+FIL     f;
+BYTE    wbuf[512];
+BYTE    rbuf[512];
+BYTE    work[4096];      /* f_mkfs 的工作缓冲区 —— 注意必须是全局！见下面的说明 */
+static void fatfs_test(void)
+{
+    FRESULT fr;
+    UINT    bw, br;
+    DWORD   fre_clust = 0;
+    FATFS  *fsp = 0;
+
+    /* ---------- 1. 挂载 ---------- */
+
+	
+fr = f_mount(&fs, "0:", 1);
+    printf("f_mount -> %d\r\n", fr);
+
+    if (fr == FR_NO_FILESYSTEM)
+    {
+        printf("no filesystem, formatting...\r\n");
+        fr = f_mkfs("0:", 0, work, sizeof(work));
+        printf("f_mkfs -> %d\r\n", fr);
+        if (fr == FR_OK) fr = f_mount(&fs, "0:", 1);
+    }
+    if (fr != FR_OK) { printf("mount failed, abort\r\n"); return; }
+		printf("fs_type=%u (1=FAT12 2=FAT16 3=FAT32), %u sectors/cluster\r\n",
+           (unsigned)fs.fs_type, (unsigned)fs.csize);
+
+    if (f_getfree("0:", &fre_clust, &fsp) == FR_OK)
+    {
+        printf("total=%lu KB, free=%lu KB\r\n",
+               (unsigned long)(fsp->n_fatent - 2) * fsp->csize / 2,
+               (unsigned long)fre_clust * fsp->csize / 2);
+    }
+
+        /* ---------- 3. 写文件 ---------- */
+    memset(wbuf, 0x55, sizeof(wbuf));
+    fr = f_open(&f, "0:/atk.txt", FA_CREATE_ALWAYS | FA_WRITE);
+    printf("f_open(w) -> %d\r\n", fr);
+    if (fr != FR_OK) return;
+
+    fr = f_write(&f, wbuf, sizeof(wbuf), &bw);
+    printf("f_write -> %d, wrote %u bytes\r\n", fr, bw);
+    f_close(&f);                 /* 一定要关，否则目录项和数据可能还在缓存里 */
+
+    /* ---------- 4. 读回比对 ---------- */
+    memset(rbuf, 0, sizeof(rbuf));
+    fr = f_open(&f, "0:/atk.txt", FA_READ);
+    printf("f_open(r) -> %d\r\n", fr);
+    if (fr != FR_OK) return;
+
+    fr = f_read(&f, rbuf, sizeof(rbuf), &br);
+    f_close(&f);
+
+    if (fr == FR_OK && br == sizeof(rbuf) && memcmp(wbuf, rbuf, sizeof(rbuf)) == 0)
+        printf("VERIFY OK\r\n");
+    else
+        printf("VERIFY FAIL: fr=%d br=%u\r\n", fr, br);
+
+}
 int main(void)
 {
-    short temp;
+   
+    HAL_Init();                             /* ???HAL? */
+    sys_stm32_clock_init(336, 8, 2, 7);     /* ????,168Mhz */
+    delay_init(168);                        /* ????? */
+    usart_init(115200);                     /* ??????115200 */
+    led_init();                             /* ???LED */
 
-    HAL_Init();                             /* 初始化HAL库 */
-    sys_stm32_clock_init(336, 8, 2, 7);     /* 设置时钟,168Mhz */
-    delay_init(168);                        /* 延时初始化 */
-    usart_init(115200);                     /* 串口初始化为115200 */
-    led_init();                             /* 初始化LED */
-    uint8_t status=sd_init();
-	  if(status==0){
-	       HAL_SD_CardInfoTypeDef   info;
-    HAL_SD_CardStatusTypeDef st;
-    uint32_t c = SDIO->CLKCR;
-    uint64_t bytes;
-
-    /* ① 核对主机侧配置：期望 CLKCR=0x00000900(CLKEN=1, WIDBUS=1 → 4-bit, CLKDIV=0 → 24MHz) */
-    printf("CLKCR=0x%08X CLKDIV=%u CLKEN=%u WIDBUS=%u\r\n",
-           (unsigned)c, (unsigned)(c & 0xFFU), (unsigned)((c >> 8) & 1U), (unsigned)((c >> 11) & 3U));
-
-    /* ② 容量：来自 CSD(CMD9)，这才是权威数据 */
-    HAL_SD_GetCardInfo(&hsd, &info);
-    bytes = (uint64_t)info.LogBlockNbr * (uint64_t)info.LogBlockSize;
-    printf("CardType=%u(0=SDSC,1=SDHC/SDXC) BlockNbr=%u BlockSize=%u LogBlockNbr=%u\r\n",
-           (unsigned)info.CardType, (unsigned)info.BlockNbr,
-           (unsigned)info.BlockSize, (unsigned)info.LogBlockNbr);
-    printf("Capacity = %u MB (%u.%02u GB)\r\n",
-           (unsigned)(info.LogBlockNbr >> 11U),
-           (unsigned)(bytes / 1000000000ULL),
-           (unsigned)((bytes % 1000000000ULL) / 10000000ULL));
-
-    /* ③ ACMD13 的那些字段用在这里才对 */
-    if (HAL_SD_GetCardStatus(&hsd, &st) == HAL_OK)   /* ← 别忘了判断返回值，你这次也没判断 */
-    {
-        printf("DataBusWidth=%u(0=1bit,2=4bit) ProtectedArea=%u B SpeedClass=%u AU_SIZE=%u EraseSize=%u\r\n",
-               (unsigned)st.DataBusWidth, (unsigned)st.ProtectedAreaSize,
-               (unsigned)st.SpeedClass, (unsigned)st.AllocationUnitSize, (unsigned)st.EraseSize);
-    }
-		}
-		
-		 memset(data,0xff,512);
-     status=sd_write_disk(data,1,1);
-		 if(status==HAL_OK){
-		      printf("写入成功\r\n");
-		  }
-		 else{
-		 printf("error status:%d\r\n",status);}
+    fatfs_test();                      /* ??? f_mount */
 
     while (1)
     {
@@ -77,6 +107,6 @@ int main(void)
     
         
         LED0_TOGGLE();  /* LED0闪烁,提示程序运行 */
-        delay_ms(250);
+        delay_ms(500);
     }
 }
