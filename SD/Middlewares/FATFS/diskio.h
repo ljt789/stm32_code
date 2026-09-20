@@ -33,11 +33,11 @@ DRESULT disk_write (BYTE pdrv, const BYTE* buff, LBA_t sector, UINT count);
 DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 
 
-/* Disk Status Bits (DSTATUS) */
+/* Disk Status Bits (DSTATUS)   磁盘状态*/
 
-#define STA_NOINIT		0x01	/* Drive not initialized */
-#define STA_NODISK		0x02	/* No medium in the drive */
-#define STA_PROTECT		0x04	/* Write protected */
+#define STA_NOINIT		0x01	/* 驱动没有初始化Drive not initialized */
+#define STA_NODISK		0x02	/* 物理层不存在No medium in the drive */
+#define STA_PROTECT		0x04	/* 写保护Write protected */
 
 
 /* Command code for disk_ioctrl fucntion */

@@ -3414,8 +3414,14 @@ static UINT find_volume (	/* Returns BS status found in the hosting drive */
 	UINT fmt, i;
 	DWORD mbr_pt[4];
 
-
-	fmt = check_fs(fs, 0);				/* Load sector 0 and check if it is an FAT VBR as SFD format */
+	/*
+	| 身份 | 什么时候是它 | 特征 |
+	|---|---|---|
+	| **MBR**（主引导记录） | 卡用传统方式分区（PC 格式化） | 偏移 0x1BE 处有 4 个 16 字节的分区表项 |
+	| **VBR**（卷引导记录） | 卡是"超级软盘"格式（SFD），或整卡一个卷 | 开头有跳转指令 + `"FAT32   "` 等类型串 |
+	| **保护性 MBR** | 卡用 GPT 分区（64GB 以上常见） | 只有一个分区项，类型字节 = `0xEE` |
+	*/
+	fmt = check_fs(fs, 0);				/* 查看扇区0属于哪种身份Load sector 0 and check if it is an FAT VBR as SFD format */
 	if (fmt != 2 && (fmt >= 3 || part == 0)) return fmt;	/* Returns if it is an FAT VBR as auto scan, not a BS or disk error */
 
 	/* Sector 0 is not an FAT VBR or forced partition number wants a partitioned drive */
@@ -3489,11 +3495,12 @@ static FRESULT mount_volume (	/* FR_OK(0): successful, !=0: an error occurred */
 #if FF_FS_REENTRANT
 	if (!lock_volume(fs, 1)) return FR_TIMEOUT;	/* Lock the volume, and system if needed */
 #endif
-	*rfs = fs;							/* Return pointer to the filesystem object */
+	*rfs = fs;							/* 返回系统中的工作区对象Return pointer to the filesystem object */
 
 	mode &= (BYTE)~FA_READ;				/* Desired access mode, write access or not */
-	if (fs->fs_type != 0) {				/* fs_type == 0 = 从未挂载或已被注销。是 0 就整个跳过快速通道*/.
-		stat = disk_status(fs->pdrv);    //获取磁盘的状态| 位 | 值 | 含义 |
+	if (fs->fs_type != 0) {				/* fs_type == 0 = 从未挂载或已被注销。是 0 就整个跳过快速通道*/
+		stat = disk_status(fs->pdrv);   //返回当前磁盘的状态
+		     //获取磁盘的状态| 位 | 值 | 含义 |
 			// | --- | --- | --- |
 			// | STA_NOINIT | 0x01 | 介质未初始化（卡拔过/掉电） |
 			// | STA_NODISK | 0x02 | 槽里没卡 |
@@ -3502,17 +3509,19 @@ static FRESULT mount_volume (	/* FR_OK(0): successful, !=0: an error occurred */
 			if (!FF_FS_READONLY && mode && (stat & STA_PROTECT)) {	/* Check write protection if needed */
 				return FR_WRITE_PROTECTED;
 			}
-			return FR_OK;				/* The filesystem object is already valid */
+			return FR_OK;				/* 文件系统对象已经挂载成功The filesystem object is already valid */
 		}
 	}
 
-	/* The filesystem object is not valid. */
+	/* The filesystem object is not valid. 
+	文件系统对象如果不存在
+	*/
 	/* Following code attempts to mount the volume. (find an FAT volume, analyze the BPB and initialize the filesystem object) */
 
-	fs->fs_type = 0;					/* Invalidate the filesystem object */
-	stat = disk_initialize(fs->pdrv);	/* Initialize the volume hosting physical drive */
-	if (stat & STA_NOINIT) { 			/* Check if the initialization succeeded */
-		return FR_NOT_READY;			/* Failed to initialize due to no medium or hard error */
+	fs->fs_type = 0;					/* 标记为未挂载Invalidate the filesystem object */
+	stat = disk_initialize(fs->pdrv);	/* 初始化物理盘Initialize the volume hosting physical drive */
+	if (stat & STA_NOINIT) { 			/* 检查状态是不是未初始化 Check if the initialization succeeded */
+		return FR_NOT_READY;			/* 返回未准备Failed to initialize due to no medium or hard error */
 	}
 	if (!FF_FS_READONLY && mode && (stat & STA_PROTECT)) { /* Check disk write protection if needed */
 		return FR_WRITE_PROTECTED;
@@ -3522,7 +3531,7 @@ static FRESULT mount_volume (	/* FR_OK(0): successful, !=0: an error occurred */
 	if (SS(fs) > FF_MAX_SS || SS(fs) < FF_MIN_SS || (SS(fs) & (SS(fs) - 1))) return FR_DISK_ERR;
 #endif
 
-	/* Find an FAT volume on the hosting drive */
+	/* Find an FAT volume on the hosting drive   找到在物理存储上的真正的卷*/
 	fmt = find_volume(fs, LD2PT(vol));
 	if (fmt == 4) return FR_DISK_ERR;		/* An error occurred in the disk I/O layer */
 	if (fmt >= 2) return FR_NO_FILESYSTEM;	/* No FAT volume is found */
@@ -3530,7 +3539,9 @@ static FRESULT mount_volume (	/* FR_OK(0): successful, !=0: an error occurred */
 
 	/* An FAT volume is found (bsect). Following code initializes the filesystem object */
 
-#if FF_FS_EXFAT
+
+	//一种exfat格式的磁盘物理驱动
+#if FF_FS_EXFAT  
 	if (fmt == 1) {
 		QWORD maxlba;
 		DWORD so, cv, bcl, ncl, i;
@@ -3751,8 +3762,12 @@ static FRESULT validate (	/* Returns FR_OK or FR_INVALID_OBJECT */
  * @brief: 挂载函数
  * @param:FATFS* fs:工作区对象
  * @param:const TCHAR* path:逻辑盘号
- * @param:BYTE opt:延迟挂载 还是立即挂载
+ * @param:BYTE opt:延迟挂载 还是立即挂载   0代表延迟挂载  1代表立即挂载
  * @note :FatFs 模块内部有一张指针表：FATFS* FatFs[FF_VOLUMES];（FF_VOLUMES 默认 1，在 ffconf.h 里配），f_mount 本质上就是往 FatFs[0] 里填你的指针
+ * @note :执行流程:1.解析路径，拿到卷号
+ * 2.注销旧对象
+ * 3.登记新对象（挂载进全局登记表，但是type标记为 未挂载）
+ * 4.根据 opt选择是否立即挂载还是稍后挂载
  */
 FRESULT f_mount (
 	FATFS* fs,			/* Pointer to the filesystem object to be registered (NULL:unmount)*/
@@ -3770,8 +3785,8 @@ FRESULT f_mount (
 	vol = get_ldnumber(&rp);   /*从字符串获取具体的逻辑盘号，例如""0:"返回数字0*/
 	if (vol < 0) return FR_INVALID_DRIVE;/*判断此值合法性，必须非负*/
 
-	cfs = FatFs[vol];			/*暂存：这个盘号当前登记的工作区指针（可能为 NULL） */*/
-	if (cfs) {					/*判断：之前是否挂载过 */Unregister current filesystem object */
+	cfs = FatFs[vol];			    /*暂存：这个盘号当前登记的工作区指针（可能为 NULL） */
+	if (cfs) {				       	/*判断：之前是否挂载过 Unregister current filesystem object */
 		FatFs[vol] = 0;         /*赋值空指针 */
 #if FF_FS_LOCK					/* Clear file lock semaphores correspond to this volume */
 		clear_share(cfs);
@@ -3779,11 +3794,11 @@ FRESULT f_mount (
 #if FF_FS_REENTRANT				/* Discard mutex of the current volume */
 		ff_mutex_delete(vol);
 #endif
-		cfs->fs_type = 0;		/* Invalidate the filesystem object to be unregistered */
+		cfs->fs_type = 0;		/*状态变为未挂载 Invalidate the filesystem object to be unregistered */
 	}
 
 	if (fs) {					/* 判断当前对象指针是否非空 */
-		fs->pdrv = LD2PD(vol);	/* 盘号与物理地址绑定Volume hosting physical drive */
+		fs->pdrv = LD2PD(vol);	/* 盘号与物理地址绑定 0代表sd卡  1代表flash等等 */
 #if FF_FS_REENTRANT				/* Create a volume mutex */
 		fs->ldrv = (BYTE)vol;	/* Owner volume ID */
 		if (!ff_mutex_create(vol)) return FR_INT_ERR;
@@ -3797,7 +3812,7 @@ FRESULT f_mount (
 		}
 #endif
 #endif
-		fs->fs_type = 0;		/* Invalidate the new filesystem object */
+		fs->fs_type = 0;		/* 未挂载Invalidate the new filesystem object */
 		FatFs[vol] = fs;		/* 将当前对象指针放在 专门管理的指针数组中*/
 	}
 

@@ -146,12 +146,15 @@ typedef struct {
 
 
 /* Filesystem object structure (FATFS) */
-
+/**
+ * 此结构体必须是一个全局变量，因为有一个全局的对象指针
+ * 
+ */
 typedef struct {
-	BYTE	fs_type;	/* Filesystem type (0:not mounted) */
-	BYTE	pdrv;		/* Physical drive that holds this volume */
-	BYTE	ldrv;		/* Logical drive number (used only when FF_FS_REENTRANT) */
-	BYTE	n_fats;		/* Number of FATs (1 or 2) */
+	BYTE	fs_type;	/* FAT的类型 FS_FAT12=1 / FS_FAT16=2 / FS_FAT32=3，0 = 未挂载 Filesystem type (0:not mounted) */
+	BYTE	pdrv;		/* 这个卷挂在哪个物理驱动器上（0=SD，1=SPI Flash…）。所有 disk_* 回调收到的就是它Physical drive that holds this volume */
+	BYTE	ldrv;		/* 逻辑驱动器号Logical drive number (used only when FF_FS_REENTRANT) */
+	BYTE	n_fats;		/* 卷挂载 ID，每次挂载自增。这是"文件对象有效性校验"的钥匙：f_open 时把当时的 id 抄进 FIL.obj.id，之后每次读写都比对 fp->obj.id == fp->obj.fs->id。不相等就说明这个卷在文件打开期间被重新挂载过了Number of FATs (1 or 2) */
 	BYTE	wflag;		/* win[] status (b0:dirty) */
 	BYTE	fsi_flag;	/* Allocation information control (b7:disabled, b0:dirty) */
 	WORD	id;			/* Volume mount ID */
@@ -215,6 +218,7 @@ typedef struct {
 
 /* File object structure (FIL) */
 
+/*代表一个打开的文件*/
 typedef struct {
 	FFOBJID	obj;		/* Object identifier (must be the 1st member to detect invalid object pointer) */
 	BYTE	flag;		/* File status flags */
@@ -237,7 +241,7 @@ typedef struct {
 
 
 /* Directory object structure (DIR) */
-
+/*代表一个打开的目录*/
 typedef struct {
 	FFOBJID	obj;		/* Object identifier (must be the 1st member to detect invalid object pointer) */
 	DWORD	dptr;		/* Current read/write offset */
@@ -256,7 +260,7 @@ typedef struct {
 
 
 /* File/directory information structure (FILINFO) */
-
+/*一次目录查询的结果*/
 typedef struct {
 	FSIZE_t	fsize;			/* File size (invalid for directory) */
 	WORD	fdate;			/* Date of file modification or directory creation */

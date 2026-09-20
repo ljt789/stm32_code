@@ -20,7 +20,7 @@ static volatile DSTATUS Stat =STA_NOINIT;  /*¿¨×´Ì¬µÄ±êÖ¾*/
 DSTATUS disk_initialize (BYTE pdrv){
     if (pdrv!=DEV_SD)
     {
-        return STA_NOINIT;
+        return STA_NOINIT;     
     }
 
     if(Stat & STA_NOINIT){
